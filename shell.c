@@ -18,7 +18,7 @@ Logan Garcia
 int main()
 {
 	char ***history;
-	history = malloc(MAX_LINE/2 + 1); //variable to hold the history
+	history = malloc(200); //variable to hold the history
 	 //end memeory allocation
 	
 	//variables
@@ -105,8 +105,9 @@ int main()
 			//input parsed and put into history
 			//printf("args[0] right before history: \'%s\'\n",args[0]);
 			history[historyCount] = args; //putting command in history
-			//printf("history after being given args: \'%s\'\n' ", history[historyCount][0]); 
-			historyCount++; //incrementing historyCounter
+			//printf("history after being given args: \'%s\'\n' ", history[historyCount][0]);
+			if(historyCount < 25) 
+				historyCount++; //incrementing historyCounter
 			fflush(stdout);
 			errno = 0;
 
@@ -127,87 +128,91 @@ int main()
 					if(previousCommandFlag)
 					{
 					//printf("previousCommandFlag triggered");
-					if(args[0][1] == '!')
-					{
-						args = history[historyCount - 2];
-						i = 1;
-						while(args[0][0] == '!' && args[0][1] == '!' && historyCount - (2 + i) >= 0)
-						{	
-							args = history[historyCount - (2 + i)];
+						if(args[0][1] == '!')
+						{
+							args = history[historyCount - 2];
+							i = 1;
+							while(args[0][0] == '!' && args[0][1] == '!' && historyCount - (2 + i) >= 0)
+							{	
+								args = history[historyCount - (2 + i)];
+							}
+
 						}
-					
+						else if(args[0][1] != '!')
+						{
+							int commandNumber = args[0][1] - '0';
+							args = history[commandNumber];
+						}
 					}
-					else if(args[0][1] != '!')
-					{
-						int commandNumber = args[0][1] - '0';
-						args = history[commandNumber];
-					}
-					}	
 					previousCommandFlag = 0;
-					//printf("in fork\n");
-					//printf("%s args[0]\n", args[0]);
-					//printf("%s args[1]\n", args[1]);
-					execvp(args[0], args);
-					switch(errno)
+					if(strncmp(args[0], "history", 7))
 					{
-					case 0:
-					printf("no error\n");
-					break;
-					case E2BIG:
-					printf("E2BIG\n");
-					break;
-					case EACCES:
-					printf("EACCES\n");
-					break;
-					case EFAULT:
-					printf("EFAULT\n");
-					break;
-					case EINVAL:
-					printf("EINVAL\n");
-					break;
-					case EIO:
-					printf("EIO\n");
-					break;
-					case EISDIR:
-					printf("EISDIR\n");
-					break;
-					case ELIBBAD:
-					printf("ELIBBAD\n");
-					break;
-					case ELOOP:
-					printf("ELOOP\n");
-					break;
-					case EMFILE:
-					printf("EMFILE\n");
-					break;
-					case ENFILE:
-					printf("ENFILE\n");
-					break;
-					case ENAMETOOLONG:
-					printf("ENAMETOOLONG\n");
-					break;
-					case ENOENT:
-					printf("ENOENT\n");
-					break;
-					case ENOMEM:
-					printf("ENOMEM\n");
-					break;
-					case ENOEXEC:
-					printf("ENOEXEC\n");
-					break;
-					case ENOTDIR:
-					printf("ENOTDIR\n");
-					break;
-					case EPERM:
-					printf("EPERM\n");
-					break;
-					case ETXTBSY:
-					printf("ETXTBSY\n");
-					break;
-					default:
-					printf("unknown error\n");
-					break;	
-					};
+						//printf("in fork\n");
+						//printf("%s args[0]\n", args[0]);
+						//printf("%s args[1]\n", args[1]);
+						execvp(args[0], args);
+						switch(errno)
+						{
+						case 0:
+						printf("no error\n");
+						break;
+						case E2BIG:
+						printf("E2BIG\n");
+						break;
+						case EACCES:
+						printf("EACCES\n");
+						break;
+						case EFAULT:
+						printf("EFAULT\n");
+						break;
+						case EINVAL:
+						printf("EINVAL\n");
+						break;
+						case EIO:
+						printf("EIO\n");
+						break;
+						case EISDIR:
+						printf("EISDIR\n");
+						break;
+						case ELIBBAD:
+						printf("ELIBBAD\n");
+						break;
+						case ELOOP:
+						printf("ELOOP\n");
+						break;
+						case EMFILE:
+						printf("EMFILE\n");
+						break;
+						case ENFILE:
+						printf("ENFILE\n");
+						break;
+						case ENAMETOOLONG:
+						printf("ENAMETOOLONG\n");
+						break;
+						case ENOENT:
+						printf("ENOENT\n");
+						break;
+						case ENOMEM:
+						printf("ENOMEM\n");
+						break;
+						case ENOEXEC:
+						printf("ENOEXEC\n");
+						break;
+						case ENOTDIR:
+						printf("ENOTDIR\n");
+						break;
+						case EPERM:
+						printf("EPERM\n");
+						break;
+						case ETXTBSY:
+						printf("ETXTBSY\n");
+						break;
+						default:
+						printf("unknown error\n");
+						break;	
+						};
+					}
+
 				}
 				return 0;	
 			}
@@ -228,16 +233,31 @@ int main()
 				
 				for(i = 0; i <= iterations; i++)
 				{
+					//printf("%d, iterations\n", iterations);
 					printf("command %d: %s\n", i, history[i][0]);
 				}
 				historyFlag = 0;
 			}
-			iterations++;
+			if(iterations < 25)
+			{
+				iterations++;
+			}
+			else
+			{
+				for(i = 0; i < 25; i++)
+				{
+					//printf("putting %s into history[%d]\n", history[i+1][0], i);
+					history[i] = history[i+1];
+				}
+				history[25] = NULL;
+				historyCount == 25;
+				//printf("%s : history [25]\n" ,history[25][0]);
+			}
 		}
 		else
 		{
 			should_run = 0; 
 		}
 	}
-return 0;
+	return 0;
 }
