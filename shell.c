@@ -30,6 +30,7 @@ int main()
 	int historyCount = 0;
 	int parallelFlag = 0;
 	int previousCommandFlag = 0;
+	int historyFlag = 0;
 	int iterations = 0; //remove
 	//end variables
 
@@ -85,6 +86,11 @@ int main()
 					}
 					if(holder[0] != '\0')
 					{
+						if(!strncmp(holder, "history", 7))
+						{
+							historyFlag = 1;
+						}
+
 						//printf("holder in transfer: \'%s\'\n", holder);
 						//printf("allocating\n");
 						args[j] = malloc(MAX_LINE/2 + 1);
@@ -116,8 +122,10 @@ int main()
 			pid_t pid = fork();
 			if(pid == 0)
 			{
-				if(previousCommandFlag)
+				if(strncmp(args[0], "history", 7))
 				{
+					if(previousCommandFlag)
+					{
 					//printf("previousCommandFlag triggered");
 					if(args[0][1] == '!')
 					{
@@ -134,14 +142,14 @@ int main()
 						int commandNumber = args[0][1] - '0';
 						args = history[commandNumber];
 					}
-				}	
-				previousCommandFlag = 0;
-				//printf("in fork\n");
-				//printf("%s args[0]\n", args[0]);
-				//printf("%s args[1]\n", args[1]);
-				execvp(args[0], args);
-				switch(errno)
-				{
+					}	
+					previousCommandFlag = 0;
+					//printf("in fork\n");
+					//printf("%s args[0]\n", args[0]);
+					//printf("%s args[1]\n", args[1]);
+					execvp(args[0], args);
+					switch(errno)
+					{
 					case 0:
 					printf("no error\n");
 					break;
@@ -199,7 +207,8 @@ int main()
 					default:
 					printf("unknown error\n");
 					break;	
-				};
+					};
+				}
 				return 0;	
 			}
 			previousCommandFlag = 0;
@@ -213,6 +222,15 @@ int main()
 			{
 				//printf("not waiting\n");
 				parallelFlag = 0;
+			}
+			if(historyFlag)
+			{
+				
+				for(i = 0; i <= iterations; i++)
+				{
+					printf("command %d: %s\n", i, history[i][0]);
+				}
+				historyFlag = 0;
 			}
 			iterations++;
 		}
