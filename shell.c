@@ -109,6 +109,33 @@ int main()
 			if(historyCount < 25) 
 				historyCount++; //incrementing historyCounter
 			fflush(stdout);
+			if(strncmp(args[0], "history", 7))
+				{
+					if(previousCommandFlag)
+					{
+					//printf("previousCommandFlag triggered");
+						if(args[0][1] == '!')
+						{
+							args = history[historyCount - 2];
+							i = 1;
+							while(args[0][0] == '!' && args[0][1] == '!' && historyCount - (2 + i) >= 0)
+							{	
+								//printf("historyCount: %d\n", historyCount);
+								//printf("back seek: historyCount - (2+i): %d\n", historyCount -(2+ i));
+								args = history[historyCount - (2 + i)];
+								i++;
+							}
+
+						}
+						else if(args[0][1] != '!')
+						{
+							int commandNumber = args[0][1] - '0';
+							args = history[commandNumber];
+						}
+					}
+				}
+				if(!strncmp(args[0], "history", 7))
+					historyFlag = 1;
 			errno = 0;
 
 
@@ -122,29 +149,7 @@ int main()
 
 			pid_t pid = fork();
 			if(pid == 0)
-			{
-				if(strncmp(args[0], "history", 7))
-				{
-					if(previousCommandFlag)
-					{
-					//printf("previousCommandFlag triggered");
-						if(args[0][1] == '!')
-						{
-							args = history[historyCount - 2];
-							i = 1;
-							while(args[0][0] == '!' && args[0][1] == '!' && historyCount - (2 + i) >= 0)
-							{	
-								args = history[historyCount - (2 + i)];
-							}
-
-						}
-						else if(args[0][1] != '!')
-						{
-							int commandNumber = args[0][1] - '0';
-							args = history[commandNumber];
-						}
-					}
-					previousCommandFlag = 0;
+			{	
 					if(strncmp(args[0], "history", 7))
 					{
 						//printf("in fork\n");
@@ -213,7 +218,6 @@ int main()
 						};
 					}
 
-				}
 				return 0;	
 			}
 			previousCommandFlag = 0;
