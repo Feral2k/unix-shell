@@ -14,6 +14,7 @@ This is a C program designed to serve as a shell interface that accepts user com
 After downloading the code:
 
 ```$ gcc shell.c -o shell```
+
 ```$ ./shell```
 
 After which, the user can enter terminal commands from osh>.
@@ -37,3 +38,7 @@ where n is a specific command number listed in history. To exit the program, typ
 ```$ osh>exit```
 
 In order for the child process to continue running, append ```&``` to whatever command you are executing.
+
+## Errors
+
+Currently, the history displays the command but not the arguments of the command. This is because it is difficult to know how many arguments have been passed through.
