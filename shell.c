@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <sys/wait.h>
 #define MAX_LINE 80
 int main()
 {
@@ -196,7 +197,7 @@ int main()
 			if(!parallelFlag)
 			{
 			//printf("waiting\n");	
-				wait();
+				wait(NULL);
 				parallelFlag = 0;
 			}
 			else
