@@ -39,6 +39,7 @@ int main(void) {
 						printf("The character is a carriage return\n");
 						lastWhiteSpace++;
 						count++;
+
 						//currentArgsIndex++;
 					}
 				}
@@ -57,13 +58,17 @@ int main(void) {
 		char* tempCharStar[MAX_LINE/2+1];
 		int iterator = 0;
 		
+		printf("before the while");
 		while(iterator < count)
 		{
+			printf("while loop iterator");
 			tempCharStar[iterator] = args[iterator];
 			iterator++;
+			printf("while loop iterator");
  		}
 		pid_t pid = fork();
 		if (pid == 0) {
+			printf("in fork");
 			execvp(tempCharStar[0], tempCharStar);
 			switch(errno)
 			{
