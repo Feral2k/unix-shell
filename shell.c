@@ -1,3 +1,12 @@
+/***********************************************
+Unix Shell Final Project
+Authors:
+Jason Martin
+Robert Carleton
+Christopher Cervantez-Hernandez
+Logan Garcia
+***********************************************/
+
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
