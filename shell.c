@@ -20,6 +20,7 @@ int main()
 	int historyCount = 0;
 	int parallelFlag = 0;
 	int previousCommandFlag = 0;
+	int iterations = 0; //remove
 	//end variables
 
 	while(should_run) //start shell loop
@@ -29,7 +30,7 @@ int main()
 		char **args; 
 		args = (char**) malloc(MAX_LINE/2 + 1); //variable to take the argument
 		int i, j = 0;
-		char* exitCondition = (char*) malloc(MAX_LINE/2 + 1);
+		char* holder;
 		i = lastWhiteSpace = 0;
 		//parse the input
 		if(strncmp(input, "exit", 4))
@@ -38,13 +39,12 @@ int main()
 			{
 				if(input[i] == ' ' || input[i] == '\n') //checking for breaks for arguments
 				{
-					printf("allocating\n");
-					args[j] = malloc(MAX_LINE/2 + 1);
+					holder = malloc(MAX_LINE/2 + 1);
 					while(lastWhiteSpace < i) //put all characters between the lastWhiteSpace and i into args
 					{
 						if(input[lastWhiteSpace] == ' ')
 						{
-							printf("%i ", i);
+							//printf("%i ", i);
 							lastWhiteSpace++;
 							currentIndex = 0;
 						}
@@ -56,63 +56,79 @@ int main()
 						{
 							if(input[lastWhiteSpace] == '!')
 								previousCommandFlag = 1;
-							if(input[lastWhiteSpace] == '&')
-								parallelFlag = 1;
 
-							args[j][currentIndex] = input[lastWhiteSpace];
-							printf("copying char: \'%c\'\n",input[lastWhiteSpace]);
-							printf("args[j]: \'%s\'\n", args[j]);
+							if(input[lastWhiteSpace] == '&')
+							{
+								//printf("in parallelFlag\n");
+								parallelFlag = 1;
+								lastWhiteSpace++;
+								currentIndex++;
+								continue;
+							}
+							//printf("input: %c\n", input[lastWhiteSpace]);
+							holder[currentIndex] = input[lastWhiteSpace];
+							//printf("copying char: \'%c\'\n",input[lastWhiteSpace]);
+							//printf("holder[currentIndex: \'%s\'\n", holder);
 							lastWhiteSpace++;
 							currentIndex++;
 						}
 					}
-					
-					j++;
+					if(holder[0] != '\0')
+					{
+						//printf("holder in transfer: \'%s\'\n", holder);
+						//printf("allocating\n");
+						args[j] = malloc(MAX_LINE/2 + 1);
+						args[j] = holder;
+						j++;
+					}
 				}
 				i++;
 				
 			}
 			lastWhiteSpace = currentIndex = 0;
 			//input parsed and put into history
-			printf("args[0] right before history: \'%s\'\n",args[0]);
+			//printf("args[0] right before history: \'%s\'\n",args[0]);
 			history[historyCount] = args; //putting command in history
-			printf("history after being given args: \'%s\'\n' ", history[historyCount][0]); 
+			//printf("history after being given args: \'%s\'\n' ", history[historyCount][0]); 
 			historyCount++; //incrementing historyCounter
 			fflush(stdout);
 			errno = 0;
+
+
+			/*//remove
+			int m = 0;
+			for(m = 0; m <= iterations; m++)
+			{
+				printf("history %d:\'%s\' \n",m,history[m][0]);
+			}
+			//end remove*/
 
 			pid_t pid = fork();
 			if(pid == 0)
 			{
 				if(previousCommandFlag)
 				{
-					printf("previousCommandFlag triggered");
-					i = 2;
-					args = history[historyCount - 2];
-					printf("history[historyCount-1][0]: %s\n", history[historyCount - 2][0]);
-					while(args[0][0] == '!' && historyCount - i >= 0)
+					//printf("previousCommandFlag triggered");
+					if(args[0][1] == '!')
 					{
-						printf("in previousCommandFlag while loop");
-						if(args[0][0] == '!')
-						{
-							if(args[0][1] != '!')
-							{
-								int commandNumber = args[0][1] - '0'; 
-								args = history[commandNumber + 1];
-								break;
-							}
-							else
-							{
-								args = history[historyCount - i];
-								i++;
-							}
+						args = history[historyCount - 2];
+						i = 1;
+						while(args[0][0] == '!' && args[0][1] == '!' && historyCount - (2 + i) >= 0)
+						{	
+							args = history[historyCount - (2 + i)];
 						}
+					
+					}
+					else if(args[0][1] != '!')
+					{
+						int commandNumber = args[0][1] - '0';
+						args = history[commandNumber];
 					}
 				}	
 				previousCommandFlag = 0;
-				printf("in fork\n");
-				printf("%s args[0]\n", args[0]);
-				printf("%s args[1]\n", args[1]);
+				//printf("in fork\n");
+				//printf("%s args[0]\n", args[0]);
+				//printf("%s args[1]\n", args[1]);
 				execvp(args[0], args);
 				switch(errno)
 				{
@@ -177,8 +193,18 @@ int main()
 				return 0;	
 			}
 			previousCommandFlag = 0;
-			if(!parallelFlag)	
+			if(!parallelFlag)
+			{
+			//printf("waiting\n");	
 				wait();
+				parallelFlag = 0;
+			}
+			else
+			{
+				//printf("not waiting\n");
+				parallelFlag = 0;
+			}
+			iterations++;
 		}
 		else
 		{
